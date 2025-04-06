@@ -19,15 +19,13 @@ let smartAPI = new SmartAPI({
 
 connectDB();
 
-const corsOptions = {
-  origin: "*",
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-};
+app.use(
+  cors({
+    origin: "*",
+  })
+);
 
-app.use(cors(corsOptions));
-app.options("*", cors(corsOptions));
+
 
 
 
