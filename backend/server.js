@@ -7,11 +7,20 @@ import userBrokerRoutes from "./src/routes/user-broker.route.js";
 import { connectDB } from "./src/config/database.js";
 import cors from "cors";
 import { config } from "dotenv";
+import https from "https";
+import fs from "fs";
+
 config({
   path: "./.env",
 });
 
 const app = express();
+
+// 🔐 HTTPS Certificate
+const sslOptions = {
+  key: fs.readFileSync("./cert/server.key"),
+  cert: fs.readFileSync("./cert/server.cert"),
+};
 
 let smartAPI = new SmartAPI({
   api_key: "smartapi_key",
@@ -22,21 +31,18 @@ connectDB();
 app.use(
   cors({
     origin: "*",
+    credentials: true,
   })
 );
 
-
-
-
-
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
-app.get("/", (req, res) => res.send("Trading App"));
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/brokers", brokerRoutes);
 app.use("/api/v1/user-brokers", userBrokerRoutes);
 
-app.listen(3000, () => {
-  console.log("App is live on 3000 port");
+// 🔄 Start HTTPS Server
+https.createServer(sslOptions, app).listen(443, () => {
+  console.log("🔐 HTTPS server running on https://localhost");
 });
